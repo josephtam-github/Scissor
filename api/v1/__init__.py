@@ -29,4 +29,11 @@ def create_app(config=config_dict['test']):
 
     jwt = JWTManager(app)
 
+    @app.shell_context_processor
+    def make_shell_context():
+        return {
+            'db': db,
+            'ma': ma,
+        }
+
     return app
