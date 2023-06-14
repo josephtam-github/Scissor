@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
 from flask_smorest import Api
 from .config.config import config_dict
 from .utils import db, ma
@@ -25,5 +26,7 @@ def create_app(config=config_dict['test']):
     app.config['OPENAPI_SWAGGER_UI_URL'] = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.25.x/'
 
     api = Api(app)
+
+    jwt = JWTManager(app)
 
     return app
