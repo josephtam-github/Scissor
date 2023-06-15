@@ -38,6 +38,10 @@ def create_app(config=config_dict['dev']):
 
         return token is not None
 
+    # Import blueprints at end of file to prevent circular import
+    from .auth.views import auth
+    api.register_blueprint(auth)
+
     @app.shell_context_processor
     def make_shell_context():
         return {
