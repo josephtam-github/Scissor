@@ -1,4 +1,4 @@
-from api import db
+from api.v1 import db
 
 
 class TokenBlocklist(db.Model):
