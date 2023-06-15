@@ -47,7 +47,7 @@ class Register(MethodView):
 
 @auth.route('/login')
 class Login(MethodView):
-    @auth.arguments(UserSchema)
+    @auth.arguments(UserSchema(partial=('firstname', 'lastname',)))
     @auth.response(HTTPStatus.ACCEPTED, UserSchema, description='Returns the access and return tokens')
     def post(self, login_data):
         """Logs in user
