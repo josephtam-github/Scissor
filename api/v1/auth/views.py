@@ -7,6 +7,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token,create_refresh_token, jwt_required, \
     get_jwt_identity, get_jwt
 from flask import jsonify
+from datetime import datetime, timezone
+from ..models.blocklist import TokenBlocklist
 
 auth = Blueprint(
     'Auth',
@@ -75,4 +77,20 @@ class Login(MethodView):
             return jsonify(response), HTTPStatus.ACCEPTED
         else:
             abort(HTTPStatus.UNAUTHORIZED, message='Invalid credentials')
+
+
+@auth.route('/logout')
+class Logout(MethodView):
+    @auth.response(HTTPStatus.OK, description='Returns success message')
+    @jwt_required()
+    def delete(self):
+        """Log the User Out
+
+        Returns success message
+        """
+        jti = get_jwt()["jti"]
+        now = datetime.now(timezone.utc)
+        blocked_token = TokenBlocklist(jti=jti, created_at=now)
+        blocked_token.save()
+        return {"message": "Logout successful"}, HTTPStatus.OK
 
