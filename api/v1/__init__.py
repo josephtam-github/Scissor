@@ -3,6 +3,7 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_smorest import Api
 from .config.config import config_dict
+from .models.blocklist import TokenBlocklist
 from .utils import db, ma
 
 
@@ -28,6 +29,14 @@ def create_app(config=config_dict['dev']):
     api = Api(app)
 
     jwt = JWTManager(app)
+
+    # Callback function to check if a JWT exists in the database blocklist
+    @jwt.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
+        jti = jwt_payload["jti"]
+        token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
+
+        return token is not None
 
     @app.shell_context_processor
     def make_shell_context():
