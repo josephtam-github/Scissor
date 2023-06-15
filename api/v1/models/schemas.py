@@ -15,10 +15,11 @@ class UserSchema(ma.SQLAlchemySchema):
         unknown = RAISE
 
     user_id = field_for(User, "user_id", dump_only=True)
-    username = field_for(User, "username", required=True, validate=Length(min=2, max=45))
-    firstname = field_for(User, "firstname", required=True, validate=Length(min=2, max=45))
-    lastname = field_for(User, "lastname", required=True, validate=Length(min=2, max=45))
-    email = field_for(User, "email", required=True, validate=[Length(min=5, max=50), Email()])
+    username = field_for(User, "username", validate=Length(min=2, max=45))
+    firstname = field_for(User, "firstname", validate=Length(min=2, max=45))
+    lastname = field_for(User, "lastname", validate=Length(min=2, max=45))
+    email = field_for(User, "email", validate=[Length(min=5, max=50), Email()])
+    password = field_for(User, "password_hash", required=True, load_only=True)
 
 
 class LinkSchema(ma.SQLAlchemySchema):
