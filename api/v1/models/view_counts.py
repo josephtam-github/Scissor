@@ -4,7 +4,7 @@ from datetime import datetime
 
 class ViewCount(db.Model):
     __tablename__ = "viewcount"
-    link_id = db.Column(db.Integer(), db.ForeignKey("link.link_id"), nullable=False)
+    link_id = db.Column(db.Integer(), db.ForeignKey("link.link_id"), primary_key=True, nullable=False)
     view_count = db.Column(db.Integer(), nullable=False, default=0)
 
     def __repr__(self):
