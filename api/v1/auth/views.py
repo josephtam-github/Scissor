@@ -94,3 +94,18 @@ class Logout(MethodView):
         blocked_token.save()
         return {"message": "Logout successful"}, HTTPStatus.OK
 
+
+@auth.route('/refresh')
+class Refresh(MethodView):
+    @auth.response(HTTPStatus.OK, description='Returns a new access token')
+    @jwt_required(refresh=True)
+    def post(self):
+        """Generate Refresh Token
+
+        Returns new access token
+        """
+        user_id = get_jwt_identity()
+        claims = get_jwt()
+        access_token = create_access_token(identity=user_id, additional_claims=claims)
+        return jsonify({'access_token': access_token}), HTTPStatus.OK
+
