@@ -15,10 +15,10 @@ class UserSchema(ma.SQLAlchemySchema):
         unknown = RAISE
 
     user_id = field_for(User, "user_id", dump_only=True)
-    username = field_for(User, "username", validate=Length(min=2, max=45))
-    firstname = field_for(User, "firstname", validate=Length(min=2, max=45))
-    lastname = field_for(User, "lastname", validate=Length(min=2, max=45))
-    email = field_for(User, "email", validate=[Length(min=5, max=50), Email()])
+    username = field_for(User, "username", required=True, validate=Length(min=2, max=45))
+    firstname = field_for(User, "firstname", required=True, validate=Length(min=2, max=45))
+    lastname = field_for(User, "lastname", required=True, validate=Length(min=2, max=45))
+    email = field_for(User, "email", required=True, validate=[Length(min=5, max=50), Email()])
     password = field_for(User, "password_hash", required=True, load_only=True)
 
 
@@ -29,7 +29,7 @@ class LinkSchema(ma.SQLAlchemySchema):
         unknown = RAISE
 
     link_id = field_for(Link, "link_id", dump_only=True)
-    true_link = field_for(Link, "true_link", required=True, validate=Length(min=2, max=45))
+    original_link = field_for(Link, "original_link", required=True, validate=Length(min=2, max=45))
     custom_link = field_for(Link, "custom_link", required=True, validate=Length(min=2, max=45))
     short_link = field_for(Link, "short_link", required=True, validate=Length(min=2, max=45))
     created_on = field_for(Link, "created_on", required=True, validate=[Length(min=5, max=50), Email()])
