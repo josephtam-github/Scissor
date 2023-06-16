@@ -1,10 +1,11 @@
+from sqlalchemy import or_
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from ..models.users import User
 from ..models.schemas import UserSchema, LinkSchema, ViewCountSchema, ViewLogSchema
 from http import HTTPStatus
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token,create_refresh_token, jwt_required, \
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, \
     get_jwt_identity, get_jwt
 from flask import jsonify
 from datetime import datetime, timezone
@@ -29,8 +30,9 @@ class Register(MethodView):
         Returns the new user info from the database
         """
         # Check if username and email exists
-        email_exist = User.query.filter_by(email=new_data['email']).first()
-        if email_exist:
+        email_username_exist = User.query.filter_by(or_(email=new_data['email'],
+                                                         username=new_data['username'])).first()
+        if email_username_exist:
             abort(HTTPStatus.NOT_ACCEPTABLE, message='This email already exists')
         else:
             new_user = User(
@@ -48,7 +50,8 @@ class Register(MethodView):
 @auth.route('/login')
 class Login(MethodView):
     @auth.arguments(UserSchema(partial=('firstname', 'lastname',)))
-    @auth.response(HTTPStatus.ACCEPTED, UserSchema, description='Returns the access and return tokens')
+    @auth.response(HTTPStatus.ACCEPTED, UserSchema(exclude=('firstname', 'lastname',)),
+                   description='Returns the access and return tokens')
     def post(self, login_data):
         """Logs in user
 
@@ -108,4 +111,3 @@ class Refresh(MethodView):
         claims = get_jwt()
         access_token = create_access_token(identity=user_id, additional_claims=claims)
         return jsonify({'access_token': access_token}), HTTPStatus.OK
-
