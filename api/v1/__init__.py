@@ -3,8 +3,8 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_smorest import Api
 from .config.config import config_dict
-from .models.blocklist import TokenBlocklist
 from .utils import db, ma
+from .models.blocklist import TokenBlocklist
 
 
 def create_app(config=config_dict['dev']):
