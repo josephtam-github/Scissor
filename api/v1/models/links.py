@@ -5,6 +5,7 @@ from datetime import datetime
 class Link(db.Model):
     __tablename__ = "link"
     link_id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('user.user_id'), unique=True)
     true_link = db.Column(db.String(50), nullable=False, unique=True)
     custom_link = db.Column(db.String(45), nullable=False)
     short_link = db.Column(db.String(45), nullable=False)
