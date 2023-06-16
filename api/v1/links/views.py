@@ -1,4 +1,4 @@
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from ..models.links import Link
@@ -25,9 +25,9 @@ short_link = Blueprint(
 
 
 # Shorten true link
-@true_link.route('/cut')
+@true_link.route('/')
 class Shorten(MethodView):
-    @true_link.arguments(LinkSchema)
+    @true_link.arguments(LinkSchema(partial=('custom_link', 'short_link')))
     @true_link.response(HTTPStatus.CREATED, LinkSchema, description='Returns an object containing short link detail')
     def post(self, link_data):
         """Shortens original link
@@ -35,9 +35,12 @@ class Shorten(MethodView):
         Returns the details of the short link from database
         """
 
-        link_exist = Link.query.filter_by(true_link=link_data['true_link']).first()
+        link_exist = Link.query.filter_by(or_(true_link=link_data['true_link'],
+                                              short_link=link_data['true_link'],
+                                              custom_link=link_data['true_link'],
+                                              )).first()
         if link_exist or Link is None:
-            abort(HTTPStatus.NOT_ACCEPTABLE, message='This link has already been shortened')
+            abort(HTTPStatus.NOT_ACCEPTABLE, message='This link already exist')
         else:
             last_id = Link.query(func.count(Link.link_id)).scalar()
             new_link = Link(
