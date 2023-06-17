@@ -25,7 +25,7 @@ short_link = Blueprint(
 
 
 # Shorten true link
-@true_link.route('/')
+@short_link.route('/')
 class Shorten(MethodView):
     @true_link.arguments(LinkSchema(partial=('custom_link', 'short_link')))
     @true_link.response(HTTPStatus.CREATED, LinkSchema, description='Returns an object containing short link detail')
@@ -35,10 +35,8 @@ class Shorten(MethodView):
         Returns the details of the short link from database
         """
 
-        link_exist = Link.query.filter_by(or_(true_link=link_data['true_link'],
-                                              short_link=link_data['true_link'],
-                                              custom_link=link_data['true_link'],
-                                              )).first()
+        link_exist = Link.query.filter_by(true_link=link_data['true_link']).first()
+
         if link_exist or Link is None:
             abort(HTTPStatus.NOT_ACCEPTABLE, message='This link already exist')
         else:
