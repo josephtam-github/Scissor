@@ -29,7 +29,8 @@ class LinkSchema(ma.SQLAlchemySchema):
         unknown = RAISE
 
     link_id = field_for(Link, "link_id", dump_only=True)
-    original_link = field_for(Link, "original_link", required=True, validate=Length(min=2, max=45))
+    user_id = field_for(Link, "user_id", load_only=True)
+    true_link = field_for(Link, "true_link", required=True, validate=Length(min=2, max=45))
     custom_link = field_for(Link, "custom_link", required=True, validate=Length(min=2, max=45))
     short_link = field_for(Link, "short_link", required=True, validate=Length(min=2, max=45))
     created_on = field_for(Link, "created_on", required=True, validate=[Length(min=5, max=50), Email()])
