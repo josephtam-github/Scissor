@@ -30,10 +30,9 @@ class Register(MethodView):
         Returns the new user info from the database
         """
         # Check if username and email exists
-        email_username_exist = User.query.filter_by(or_(email=new_data['email'],
-                                                         username=new_data['username'])).first()
+        email_username_exist = User.query.filter_by(or_(email=new_data['email'], username=new_data['username'])).first()
         if email_username_exist:
-            abort(HTTPStatus.NOT_ACCEPTABLE, message='This email already exists')
+            abort(HTTPStatus.NOT_ACCEPTABLE, message='This email or username already exists')
         else:
             new_user = User(
                 username=new_data['username'],
@@ -49,7 +48,7 @@ class Register(MethodView):
 
 @auth.route('/login')
 class Login(MethodView):
-    @auth.arguments(UserSchema(partial=('firstname', 'lastname',)))
+    @auth.arguments(UserSchema(partial=('email', 'username', 'firstname', 'lastname',)))
     @auth.response(HTTPStatus.ACCEPTED, UserSchema(exclude=('firstname', 'lastname',)),
                    description='Returns the access and return tokens')
     def post(self, login_data):
