@@ -30,8 +30,9 @@ class Register(MethodView):
         Returns the new user info from the database
         """
         # Check if username and email exists
-        email_username_exist = User.query.filter_by(or_(email=new_data['email'], username=new_data['username'])).first()
-        if email_username_exist:
+        email_exist = User.query.filter_by(email=new_data['email']).first()
+        username_exist = User.query.filter_by(username=new_data['username']).first()
+        if email_exist or username_exist:
             abort(HTTPStatus.NOT_ACCEPTABLE, message='This email or username already exists')
         else:
             new_user = User(
