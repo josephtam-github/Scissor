@@ -22,6 +22,10 @@ class UserSchema(ma.SQLAlchemySchema):
     password = field_for(User, "password_hash", required=True, load_only=True)
 
 
+LoginArgSchema = UserSchema(partial=('email', 'username', 'firstname', 'lastname',))
+LoginResponseSchema = UserSchema(exclude=('firstname', 'lastname',))
+
+
 class LinkSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Link
@@ -33,7 +37,10 @@ class LinkSchema(ma.SQLAlchemySchema):
     true_link = field_for(Link, "true_link", required=True, validate=Length(min=2, max=45))
     custom_link = field_for(Link, "custom_link", required=True, validate=Length(min=2, max=45))
     short_link = field_for(Link, "short_link", required=True, validate=Length(min=2, max=45))
-    created_on = field_for(Link, "created_on", required=True, validate=[Length(min=5, max=50), Email()])
+    created_on = field_for(Link, "created_on", load_only=True, validate=[Length(min=5, max=50), Email()])
+
+
+LinkArgSchema = LinkSchema(partial=('custom_link', 'short_link'))
 
 
 class ViewCountSchema(ma.SQLAlchemySchema):
