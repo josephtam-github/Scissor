@@ -65,7 +65,7 @@ class Shorten(MethodView):
 @short_link.route('/<string:short_link_code>')
 class Expand(MethodView):
 
-    @true_link.response(HTTPStatus.OK, description='Returns an object containing the true link of shortened URL')
+    @true_link.response(HTTPStatus.OK, description='Returns the true link of shortened URL')
     def get(self, short_link_code):
         """Returns true link of shortened URL
 
