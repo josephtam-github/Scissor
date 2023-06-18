@@ -2,7 +2,7 @@ from sqlalchemy import or_
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from ..models.users import User
-from ..models.schemas import UserSchema, LinkSchema, ViewCountSchema, ViewLogSchema
+from ..models.schemas import UserSchema, LinkSchema, LoginArgSchema, LoginResponseSchema, ViewCountSchema, ViewLogSchema
 from http import HTTPStatus
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, \
@@ -48,9 +48,8 @@ class Register(MethodView):
 
 @auth.route('/login')
 class Login(MethodView):
-    @auth.arguments(UserSchema(partial=('email', 'username', 'firstname', 'lastname',)))
-    @auth.response(HTTPStatus.ACCEPTED, UserSchema(exclude=('firstname', 'lastname',)),
-                   description='Returns the access and return tokens')
+    @auth.arguments(LoginArgSchema)
+    @auth.response(HTTPStatus.ACCEPTED, LoginResponseSchema, description='Returns the access and return tokens')
     def post(self, login_data):
         """Logs in user
 

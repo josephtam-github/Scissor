@@ -5,7 +5,7 @@ from ..models.links import Link
 from ..models.view_counts import ViewCount
 from ..models.view_logs import ViewLog
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from ..models.schemas import LinkSchema
+from ..models.schemas import LinkSchema, LinkArgSchema
 from http import HTTPStatus
 from flask import jsonify
 from ..utils.urlkit import url2id, id2url
@@ -27,7 +27,7 @@ short_link = Blueprint(
 # Shorten true link
 @short_link.route('/')
 class Shorten(MethodView):
-    @true_link.arguments(LinkSchema(partial=('custom_link', 'short_link')))
+    @true_link.arguments(LinkArgSchema)
     @true_link.response(HTTPStatus.CREATED, LinkSchema, description='Returns an object containing short link detail')
     def post(self, link_data):
         """Shortens original link
