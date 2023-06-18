@@ -14,21 +14,21 @@ true_link = Blueprint(
     'Link',
     __name__,
     url_prefix='/link',
-    description='Endpoints for shortening, updating, and deleting true links.'
+    description='Endpoints for updating, customizing and deleting true links.'
 )
 
 short_link = Blueprint(
     'Link',
     __name__,
-    description='Endpoints for processing and analyzing short links.'
+    description='Endpoints for shortening, redirecting, caching and analyzing short links.'
 )
 
 
 # Shorten true link
 @short_link.route('/')
 class Shorten(MethodView):
-    @true_link.arguments(LinkArgSchema)
-    @true_link.response(HTTPStatus.CREATED, LinkSchema, description='Returns an object containing short link detail')
+    @short_link.arguments(LinkArgSchema)
+    @short_link.response(HTTPStatus.CREATED, LinkSchema, description='Returns an object containing short link detail')
     @jwt_required()
     def post(self, link_data):
         """Shortens original link
