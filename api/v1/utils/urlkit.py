@@ -1,6 +1,6 @@
 from random import randrange
 
-salt = randrange(3844, 4000)
+salt = 3901
 
 
 # Url Shortener
