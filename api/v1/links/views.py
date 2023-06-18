@@ -29,6 +29,7 @@ short_link = Blueprint(
 class Shorten(MethodView):
     @true_link.arguments(LinkArgSchema)
     @true_link.response(HTTPStatus.CREATED, LinkSchema, description='Returns an object containing short link detail')
+    @jwt_required()
     def post(self, link_data):
         """Shortens original link
 
@@ -48,6 +49,7 @@ class Shorten(MethodView):
                 last_id = 0
 
             new_link = Link(
+                user_id=get_jwt_identity(),
                 true_link=link_data['true_link'],
                 custom_link=link_data['true_link'],
                 short_link=id2url(int(last_id) + 1),
