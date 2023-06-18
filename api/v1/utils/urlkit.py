@@ -1,9 +1,14 @@
+from random import randrange
+
+salt = randrange(3844, 4000)
+
+
 # Url Shortener
 def id2url(num):
     """convert the integer to a character string that is at most 6 characters long"""
     character_map = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     short_url = ""
-
+    num = num + salt
     # for each digit find the base 62
     while num > 0:
         short_url += character_map[num % 62]
@@ -24,4 +29,5 @@ def url2id(short_url):
             num = num * 62 + val_i - ord('A') + 26
         else:
             num = num * 62 + val_i - ord('0') + 52
+    num = num - salt
     return num
