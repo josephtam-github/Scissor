@@ -37,10 +37,16 @@ class Shorten(MethodView):
 
         link_exist = Link.query.filter_by(true_link=link_data['true_link']).first()
 
-        if link_exist or Link is None:
+        if link_exist:
+            return
             abort(HTTPStatus.NOT_ACCEPTABLE, message='This link already exist')
-        else:
-            last_id = Link.query(func.count(Link.link_id)).scalar()
+        elif Link is not None:
+            last_item = Link.query.order_by(Link.link_id.desc()).first()
+            if last_item:
+                last_id = last_item.link_id
+            else:
+                last_id = 0
+
             new_link = Link(
                 true_link=link_data['true_link'],
                 custom_link=link_data['true_link'],
@@ -49,3 +55,5 @@ class Shorten(MethodView):
             new_link.save()
 
             return new_link, HTTPStatus.CREATED
+        else:
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
