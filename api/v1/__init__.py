@@ -1,10 +1,11 @@
-from flask import Flask
+from flask import Flask, json
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_smorest import Api
 from .config.config import config_dict
 from .utils import db, ma
 from .models.blocklist import TokenBlocklist
+from werkzeug.exceptions import HTTPException
 
 
 def create_app(config=config_dict['dev']):
@@ -52,5 +53,19 @@ def create_app(config=config_dict['dev']):
             'db': db,
             'ma': ma,
         }
+
+    @app.errorhandler(HTTPException)
+    def handle_exception(e):
+        """Return JSON instead of HTML for HTTP errors."""
+        # start with the correct headers and status code from the error
+        response = e.get_response()
+        # replace the body with JSON
+        response.data = json.dumps({
+            "code": e.code,
+            "name": e.name,
+            "description": e.description,
+        })
+        response.content_type = "application/json"
+        return response
 
     return app
