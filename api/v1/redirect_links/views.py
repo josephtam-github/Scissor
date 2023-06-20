@@ -23,12 +23,12 @@ redirect_link = Blueprint(
 @redirect_link.route('/<string:short_link_code>')
 class Redirect(MethodView):
 
-    @redirect_link.response(HTTPStatus.OK, description='Returns the true link of shortened URL')
+    @redirect_link.response(HTTPStatus.OK, description='Redirects to the true link of shortened URL')
     def get(self, short_link_code):
-        """Returns true link of shortened URL
+        """Redirects to true link of shortened URL
 
 
-        Turns short-link code to link ID, looks up the true-link with the ID, then returns true link
+        Turns short-link code to link ID, looks up the true-link with the ID, then redirects user to  true link
         """
 
         link_id = url2id(short_link_code)
