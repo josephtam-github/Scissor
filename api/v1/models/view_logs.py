@@ -5,7 +5,7 @@ from datetime import datetime
 class ViewLog(db.Model):
     __tablename__ = "viewlog"
     view_log_id = db.Column(db.Integer(), primary_key=True)
-    link_id = db.Column(db.Integer(), db.ForeignKey("link.link_id"), nullable=False)
+    short_link = db.Column(db.String(50), db.ForeignKey("link.short_link"), nullable=False)
     ip_address = db.Column(db.String(50), nullable=False)
     viewed_on = db.Column(db.DateTime, default=datetime.now())
 
