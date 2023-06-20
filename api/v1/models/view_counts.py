@@ -18,6 +18,9 @@ class ViewCount(db.Model):
     def update(self):
         db.session.commit()
 
+    def refresh(self):
+        db.session.refresh()
+
     @classmethod
     def get_by_id(cls, user_id):
         return cls.query.get_or_404(user_id)
