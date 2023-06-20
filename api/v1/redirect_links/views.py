@@ -60,19 +60,27 @@ def after_request_callback(response):
                 now = datetime.now().timestamp()
                 if now - ip_exist.viewed_on.timestamp() > 300000:
                     log = ViewLog(
-                        link_id=request.path,
+                        short_link=request.path.replace('/', ''),
                         ip_address=remote_addr
                     )
                     log.save()
+                    # Update view count for link
+                    view_result = ViewCount.query.filter_by(short_link=request.path.replace('/', '')).first()
+                    view_result.view_count = view_result.view_count + 1
+                    view_result.update()
                     return response
                 else:
                     return response
             else:
                 log = ViewLog(
-                    link_id=request.path,
+                    short_link=request.path.replace('/', ''),
                     ip_address=remote_addr
                 )
                 log.save()
+                # Update view count for link
+                view_result = ViewCount.query.filter_by(short_link=request.path.replace('/', '')).first()
+                view_result.view_count = view_result.view_count + 1
+                view_result.update()
                 return response
         else:
             return response
