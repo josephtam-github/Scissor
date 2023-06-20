@@ -43,6 +43,8 @@ def create_app(config=config_dict['dev']):
     api.register_blueprint(auth)
     from .links.views import short_link
     api.register_blueprint(short_link)
+    from .links.views import redirect_link
+    api.register_blueprint(redirect_link)
 
     @app.shell_context_processor
     def make_shell_context():

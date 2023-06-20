@@ -21,7 +21,13 @@ true_link = Blueprint(
 short_link = Blueprint(
     'Link',
     __name__,
-    description='Endpoints for shortening, redirecting, caching and analyzing short links.'
+    description='Endpoints for shortening links.'
+)
+
+redirect_link = Blueprint(
+    'Link',
+    __name__,
+    description='Endpoints for redirecting, caching and analyzing short links.'
 )
 
 
@@ -62,10 +68,10 @@ class Shorten(MethodView):
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
 
 
-@short_link.route('/<string:short_link_code>')
+@redirect_link.route('/<string:short_link_code>')
 class Expand(MethodView):
 
-    @true_link.response(HTTPStatus.OK, description='Returns the true link of shortened URL')
+    @redirect_link.response(HTTPStatus.OK, description='Returns the true link of shortened URL')
     def get(self, short_link_code):
         """Returns true link of shortened URL
 
@@ -80,8 +86,9 @@ class Expand(MethodView):
         elif Link is not None:
             result_link = Link.query.filter_by(link_id=link_id).first()
             if result_link:
-                return jsonify(result_link.true_link)
+                return redirect(result_link.true_link, HTTPStatus.PERMANENT_REDIRECT, Response=None)
             else:
                 return abort(HTTPStatus.NOT_FOUND, message='Can\'t find original link')
         else:
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
+
