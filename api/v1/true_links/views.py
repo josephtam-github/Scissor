@@ -53,7 +53,14 @@ class Shorten(MethodView):
                     short_link=id2url(int(last_id) + 1),
                 )
                 new_link.save()
-
+                new_link.refresh()
+                inserted_id = new_link.link_id
+                # Create view count
+                new_count = ViewCount(
+                    link_id=inserted_id,
+                    short_link=id2url(int(last_id) + 1),
+                )
+                new_count.save()
                 return new_link, HTTPStatus.CREATED
         else:
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')

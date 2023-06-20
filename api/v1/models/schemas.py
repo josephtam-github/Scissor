@@ -61,6 +61,6 @@ class ViewLogSchema(ma.SQLAlchemySchema):
         unknown = RAISE
 
     view_log_id = field_for(ViewLog, "view_log_id", dump_only=True)
-    link_id = field_for(ViewLog, "link_id", dump_only=True)
+    short_link = field_for(ViewLog, "short_link", dump_only=True)
     ip_address = field_for(ViewLog, "ip_address", dump_only=True)
     viewed_on = field_for(ViewLog, "viewed_on", dump_only=True)

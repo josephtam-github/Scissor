@@ -22,7 +22,7 @@ class Link(db.Model):
         db.session.commit()
 
     def refresh(self):
-        db.session.refresh()
+        db.session.refresh(self)
     @classmethod
     def get_by_id(cls, user_id):
         return cls.query.get_or_404(user_id)
