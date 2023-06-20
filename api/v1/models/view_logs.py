@@ -6,7 +6,7 @@ class ViewLog(db.Model):
     __tablename__ = "viewlog"
     view_log_id = db.Column(db.Integer(), primary_key=True)
     link_id = db.Column(db.Integer(), db.ForeignKey("link.link_id"), nullable=False)
-    ip_address = db.Column(db.String(50), nullable=False, unique=True)
+    ip_address = db.Column(db.String(50), nullable=False)
     viewed_on = db.Column(db.DateTime, default=datetime.now())
 
     def __repr__(self):
