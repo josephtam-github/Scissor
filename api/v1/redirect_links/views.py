@@ -14,7 +14,7 @@ from datetime import datetime
 
 
 redirect_link = Blueprint(
-    'Redirect',
+    'RedirectLink',
     __name__,
     description='Endpoints for redirecting, caching and analyzing short links.'
 )

@@ -14,7 +14,7 @@ from datetime import datetime
 
 
 true_link = Blueprint(
-    'Link',
+    'TrueLink',
     __name__,
     url_prefix='/link',
     description='Endpoints for updating, customizing and deleting true links.'
