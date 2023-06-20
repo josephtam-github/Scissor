@@ -35,12 +35,13 @@ class LinkSchema(ma.SQLAlchemySchema):
     link_id = field_for(Link, "link_id", dump_only=True)
     user_id = field_for(Link, "user_id", load_only=True)
     true_link = field_for(Link, "true_link", required=True, validate=Length(min=2, max=45))
-    custom_link = field_for(Link, "custom_link", required=True, validate=Length(min=2, max=45))
+    custom_link = field_for(Link, "custom_link", required=True, validate=Length(min=2, max=32))
     short_link = field_for(Link, "short_link", required=True, validate=Length(min=2, max=45))
     created_on = field_for(Link, "created_on", load_only=True, validate=[Length(min=5, max=50), Email()])
 
 
 LinkArgSchema = LinkSchema(partial=('custom_link', 'short_link'))
+CustomArgSchema = LinkSchema(partial=('true_link', 'short_link'))
 
 
 class ViewCountSchema(ma.SQLAlchemySchema):
