@@ -1,5 +1,5 @@
 from sqlalchemy import func, or_
-from flask import redirect
+from flask import redirect, request
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from ..models.links import Link
@@ -10,6 +10,7 @@ from ..models.schemas import LinkSchema, LinkArgSchema
 from http import HTTPStatus
 from flask import jsonify
 from ..utils.urlkit import url2id, id2url
+from datetime import datetime
 
 true_link = Blueprint(
     'Link',
@@ -25,7 +26,7 @@ short_link = Blueprint(
 )
 
 redirect_link = Blueprint(
-    'Link',
+    'Redirect',
     __name__,
     description='Endpoints for redirecting, caching and analyzing short links.'
 )
@@ -43,27 +44,65 @@ class Shorten(MethodView):
         Returns the details of the short link from database
         """
 
-        link_exist = Link.query.filter_by(true_link=link_data['true_link']).first()
-
-        if link_exist:
-            return
-            abort(HTTPStatus.NOT_ACCEPTABLE, message='This link already exist')
-        elif Link is not None:
-            last_item = Link.query.order_by(Link.link_id.desc()).first()
-            if last_item:
-                last_id = last_item.link_id
+        if Link is not None:
+            link_exist = Link.query.filter_by(true_link=link_data['true_link']).first()
+            if link_exist:
+                return
+                abort(HTTPStatus.NOT_ACCEPTABLE, message='This link already exist')
             else:
-                last_id = 0
+                last_item = Link.query.order_by(Link.link_id.desc()).first()
 
-            new_link = Link(
-                user_id=get_jwt_identity(),
-                true_link=link_data['true_link'],
-                custom_link=link_data['true_link'],
-                short_link=id2url(int(last_id) + 1),
-            )
-            new_link.save()
+                if last_item:
+                    last_id = last_item.link_id
+                else:
+                    last_id = 0
 
-            return new_link, HTTPStatus.CREATED
+                new_link = Link(
+                    user_id=get_jwt_identity(),
+                    true_link=link_data['true_link'],
+                    custom_link=link_data['true_link'],
+                    short_link=id2url(int(last_id) + 1),
+                )
+                new_link.save()
+
+                return new_link, HTTPStatus.CREATED
+        else:
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
+
+
+@short_link.route('/')
+class Shorten(MethodView):
+    @short_link.arguments(LinkArgSchema)
+    @short_link.response(HTTPStatus.CREATED, LinkSchema, description='Returns an object containing short link detail')
+    @jwt_required()
+    def post(self, link_data):
+        """Shortens original link
+
+        Returns the details of the short link from database
+        """
+
+        if Link is not None:
+            link_exist = Link.query.filter_by(true_link=link_data['true_link']).first()
+            if link_exist:
+                return
+                abort(HTTPStatus.NOT_ACCEPTABLE, message='This link already exist')
+            else:
+                last_item = Link.query.order_by(Link.link_id.desc()).first()
+
+                if last_item:
+                    last_id = last_item.link_id
+                else:
+                    last_id = 0
+
+                new_link = Link(
+                    user_id=get_jwt_identity(),
+                    true_link=link_data['true_link'],
+                    custom_link=link_data['true_link'],
+                    short_link=id2url(int(last_id) + 1),
+                )
+                new_link.save()
+
+                return new_link, HTTPStatus.CREATED
         else:
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
 
@@ -92,3 +131,35 @@ class Expand(MethodView):
         else:
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
 
+
+@redirect_link.after_request
+def after_request_callback(response):
+    if 200 <= 204:
+        if 'X-Forwarded-For' in request.headers:
+            remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(' ')[-1]
+        else:
+            remote_addr = request.remote_addr or 'untrackable'
+
+        # Check if IP exist and  was logged 5 minutes ago
+        if ViewLog is not None:
+            ip_exist = ViewLog.query.filter_by(ip_address=remote_addr).first()
+            if ip_exist:
+                now = datetime.now().timestamp()
+                if now - ip_exist.viewed_on.timestamp() > 300000:
+                    log = ViewLog(
+                        link_id=request.path,
+                        ip_address=remote_addr
+                    )
+                    log.save()
+                    return response
+                else:
+                    return response
+            else:
+                log = ViewLog(
+                    link_id=request.path,
+                    ip_address=remote_addr
+                )
+                log.save()
+                return response
+        else:
+            return response
