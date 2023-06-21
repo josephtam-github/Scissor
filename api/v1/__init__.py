@@ -1,4 +1,5 @@
 from flask import Flask, json
+from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_smorest import Api
@@ -28,7 +29,7 @@ def create_app(config=config_dict['dev']):
     app.config['OPENAPI_SWAGGER_UI_URL'] = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.25.x/'
 
     api = Api(app)
-
+    CORS(app)
     jwt = JWTManager(app)
 
     # Callback function to check if a JWT exists in the database blocklist
