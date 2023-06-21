@@ -58,10 +58,10 @@ def after_request_callback(response):
         # Check if IP exist and  was logged 5 minutes ago
         if ViewLog is not None:
             ip_exist = ViewLog.query.filter_by(ip_address=remote_addr). \
-                filter_by(short_link=short_link).first()
+                filter_by(short_link=short_link).order_by(ViewLog.viewed_on.desc()).first()
             if ip_exist:
                 now = datetime.now().timestamp()
-                if now - ip_exist.viewed_on.timestamp() >= 300:
+                if now - ip_exist.viewed_on.timestamp() > 300:
                     log = ViewLog(
                         short_link=short_link,
                         ip_address=remote_addr
