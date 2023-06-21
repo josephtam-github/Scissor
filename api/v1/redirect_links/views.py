@@ -1,5 +1,6 @@
+import flask
 from sqlalchemy import func, or_
-from flask import redirect, request
+from flask import redirect, request, Response
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from ..models.links import Link
@@ -11,7 +12,6 @@ from http import HTTPStatus
 from flask import jsonify
 from ..utils.urlkit import url2id, id2url
 from datetime import datetime
-
 
 redirect_link = Blueprint(
     'RedirectLink',
@@ -47,40 +47,47 @@ class Redirect(MethodView):
 
 @redirect_link.after_request
 def after_request_callback(response):
-    if 200 <= 204:
-        if 'X-Forwarded-For' in request.headers:
-            remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(' ')[-1]
-        else:
-            remote_addr = request.remote_addr or 'untrackable'
+    if 'X-Forwarded-For' in request.headers:
+        remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(' ')[-1]
+    else:
+        remote_addr = request.remote_addr or 'untraceable'
+    short_link = request.path.replace('/', '')
+    short_link_exist = Link.query.filter_by(short_link=short_link).first()
 
+    if short_link_exist:
         # Check if IP exist and  was logged 5 minutes ago
         if ViewLog is not None:
-            ip_exist = ViewLog.query.filter_by(ip_address=remote_addr).first()
+            ip_exist = ViewLog.query.filter_by(ip_address=remote_addr). \
+                filter_by(short_link=short_link).first()
             if ip_exist:
                 now = datetime.now().timestamp()
-                if now - ip_exist.viewed_on.timestamp() > 300000:
+                if now - ip_exist.viewed_on.timestamp() >= 300:
                     log = ViewLog(
-                        short_link=request.path.replace('/', ''),
+                        short_link=short_link,
                         ip_address=remote_addr
                     )
                     log.save()
                     # Update view count for link
-                    view_result = ViewCount.query.filter_by(short_link=request.path.replace('/', '')).first()
-                    view_result.view_count = view_result.view_count + 1
+                    view_result = ViewCount.query.filter_by(short_link=short_link).first()
+                    view_result.short_link = short_link
+                    view_result.view_count = int(view_result.view_count) + 1
                     view_result.update()
                     return response
                 else:
                     return response
-            else:
+            elif remote_addr != 'untraceable':
                 log = ViewLog(
-                    short_link=request.path.replace('/', ''),
+                    short_link=short_link,
                     ip_address=remote_addr
                 )
                 log.save()
                 # Update view count for link
-                view_result = ViewCount.query.filter_by(short_link=request.path.replace('/', '')).first()
-                view_result.view_count = view_result.view_count + 1
+                view_result = ViewCount.query.filter_by(short_link=short_link).first()
+                view_result.short_link = short_link
+                view_result.view_count = int(view_result.view_count) + 1
                 view_result.update()
                 return response
         else:
             return response
+    else:
+        return response

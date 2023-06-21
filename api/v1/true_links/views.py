@@ -36,8 +36,7 @@ class Shorten(MethodView):
         if Link is not None:
             link_exist = Link.query.filter_by(true_link=link_data['true_link']).first()
             if link_exist:
-                return
-                abort(HTTPStatus.NOT_ACCEPTABLE, message='This link already exist')
+                return abort(HTTPStatus.NOT_ACCEPTABLE, message='This link already exist')
             else:
                 last_item = Link.query.order_by(Link.link_id.desc()).first()
 
@@ -53,11 +52,9 @@ class Shorten(MethodView):
                     short_link=id2url(int(last_id) + 1),
                 )
                 new_link.save()
-                new_link.refresh()
-                inserted_id = new_link.link_id
                 # Create view count
                 new_count = ViewCount(
-                    link_id=inserted_id,
+                    link_id=int(last_id) + 1,
                     short_link=id2url(int(last_id) + 1),
                 )
                 new_count.save()
