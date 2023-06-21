@@ -9,7 +9,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..models.schemas import LinkSchema, LinkArgSchema
 from http import HTTPStatus
 from flask import jsonify
-from ..utils.urlkit import url2id, id2url
+from ..utils.urlkit import url2id, id2url, validate_url
 from datetime import datetime
 
 
@@ -34,31 +34,34 @@ class Shorten(MethodView):
         """
 
         if Link is not None:
-            link_exist = Link.query.filter_by(true_link=link_data['true_link']).first()
-            if link_exist:
-                return abort(HTTPStatus.NOT_ACCEPTABLE, message='This link already exist')
-            else:
-                last_item = Link.query.order_by(Link.link_id.desc()).first()
-
-                if last_item:
-                    last_id = last_item.link_id
+            if validate_url(link_data['true_link']):
+                link_exist = Link.query.filter_by(true_link=link_data['true_link']).first()
+                if link_exist:
+                    return abort(HTTPStatus.NOT_ACCEPTABLE, message='This link already exist')
                 else:
-                    last_id = 0
+                    last_item = Link.query.order_by(Link.link_id.desc()).first()
 
-                new_link = Link(
-                    user_id=get_jwt_identity(),
-                    true_link=link_data['true_link'],
-                    custom_link=link_data['true_link'],
-                    short_link=id2url(int(last_id) + 1),
-                )
-                new_link.save()
-                # Create view count
-                new_count = ViewCount(
-                    link_id=int(last_id) + 1,
-                    short_link=id2url(int(last_id) + 1),
-                )
-                new_count.save()
-                return new_link, HTTPStatus.CREATED
+                    if last_item:
+                        last_id = last_item.link_id
+                    else:
+                        last_id = 0
+
+                    new_link = Link(
+                        user_id=get_jwt_identity(),
+                        true_link=link_data['true_link'],
+                        custom_link=link_data['true_link'],
+                        short_link=id2url(int(last_id) + 1),
+                    )
+                    new_link.save()
+                    # Create view count
+                    new_count = ViewCount(
+                        link_id=int(last_id) + 1,
+                        short_link=id2url(int(last_id) + 1),
+                    )
+                    new_count.save()
+                    return new_link, HTTPStatus.CREATED
+            else:
+                return abort(HTTPStatus.BAD_REQUEST, message='The link provided is invalid')
         else:
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
 
