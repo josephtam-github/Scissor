@@ -13,7 +13,7 @@ from ..utils.urlkit import url2id, id2url
 from datetime import datetime
 
 short_link = Blueprint(
-    'ShortLink',
+    'Short Link',
     __name__,
     url_prefix='/short',
     description='Endpoints for shortening links.'
