@@ -51,6 +51,12 @@ def after_request_callback(response):
         remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(' ')[-1]
     else:
         remote_addr = request.remote_addr or 'untraceable'
+
+    if 'Referer' in request.headers:
+        referer = request.headers.get('Referer')
+    else:
+        referer = 'Anonymous'
+
     short_link = request.path.replace('/', '')
     short_link_exist = Link.query.filter_by(short_link=short_link).first()
 
@@ -64,7 +70,8 @@ def after_request_callback(response):
                 if now - ip_exist.viewed_on.timestamp() > 300:
                     log = ViewLog(
                         short_link=short_link,
-                        ip_address=remote_addr
+                        ip_address=remote_addr,
+                        referer=referer
                     )
                     log.save()
                     # Update view count for link
@@ -78,7 +85,8 @@ def after_request_callback(response):
             elif remote_addr != 'untraceable':
                 log = ViewLog(
                     short_link=short_link,
-                    ip_address=remote_addr
+                    ip_address=remote_addr,
+                    referer=referer
                 )
                 log.save()
                 # Update view count for link
