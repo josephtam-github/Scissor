@@ -14,7 +14,7 @@ from ..utils.urlkit import url2id, id2url
 from datetime import datetime
 
 redirect_link = Blueprint(
-    'RedirectLink',
+    'Redirect Link',
     __name__,
     description='Endpoints for redirecting, caching and analyzing short links.'
 )

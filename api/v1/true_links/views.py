@@ -14,7 +14,7 @@ from datetime import datetime
 
 
 true_link = Blueprint(
-    'TrueLink',
+    'True Link',
     __name__,
     url_prefix='/link',
     description='Endpoints for updating, customizing and deleting true links.'
@@ -61,3 +61,21 @@ class Shorten(MethodView):
                 return new_link, HTTPStatus.CREATED
         else:
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
+
+
+@true_link.route('/all')
+class ListAllLinks(MethodView):
+    @true_link.response(HTTPStatus.OK, LinkSchema(many=True), description='Returns an object containing all link data')
+    @jwt_required()
+    def get(self):
+        """Get a list of all user links
+
+        Returns all links created by user
+        """
+        link_data = Link.query.all()
+
+        # check if user requested course exist
+        if link_data is not None:
+            return link_data, HTTPStatus.OK
+        else:
+            abort(HTTPStatus.NOT_FOUND, message='There are currently no registered links')
