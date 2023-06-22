@@ -10,8 +10,7 @@ def validate_url(url: str):
         r"(?:(?:(?=\S{0,253}(?:$|:))"  # check full domain length to be less than or equal to 253 (starting after http basic auth, stopping before port)
         r"((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+"  # check for at least one subdomain (maximum length per subdomain: 63 characters), dashes in between allowed
         r"(?:[a-z0-9]{1,63})))"  # check for top level domain, no dashes allowed
-        r"|localhost"  # accept also "localhost" only
-        r"|ftp://[^\s/$.?#].[^\s]*"  # ftp scheme
+        r"|localhost)"  # accept also "localhost" only
         r"(:\d{1,5})?",  # port [optional]
         re.IGNORECASE
     )
@@ -46,7 +45,6 @@ def validate_url(url: str):
         print("Invalid URL: {}".format(url))
         print("Reason: {}".format(str(e)))
         return None
-
 
 
 salt = 3901
