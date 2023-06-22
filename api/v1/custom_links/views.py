@@ -22,8 +22,8 @@ custom_link = Blueprint(
 
 # Shorten true link
 @custom_link.route('/')
-class Shorten(MethodView):
-    @custom_link.arguments(CustomArgSchema)
+class Custom(MethodView):
+    @custom_link.arguments(LinkArgSchema)
     @custom_link.response(HTTPStatus.CREATED, LinkSchema, description='Returns an object containing custom link detail')
     @jwt_required()
     def post(self, link_data):
@@ -33,7 +33,7 @@ class Shorten(MethodView):
         """
 
         if Link is not None:
-            if validate_url(link_data['custom_link']):
+            if validate_url(link_data['true_link']):
                 custom_link_exist = Link.query.filter(or_(Link.true_link == link_data['custom_link'],
                                                           Link.custom_link == link_data['custom_link'],
                                                           Link.short_link == link_data['custom_link']
@@ -70,21 +70,3 @@ class Shorten(MethodView):
                 return abort(HTTPStatus.BAD_REQUEST, message='The link provided is invalid')
         else:
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
-
-
-@true_link.route('/all')
-class ListAllLinks(MethodView):
-    @true_link.response(HTTPStatus.OK, LinkSchema(many=True), description='Returns an object containing all link data')
-    @jwt_required()
-    def get(self):
-        """Get a list of all user links
-
-        Returns all links created by user
-        """
-        link_data = Link.query.all()
-
-        # check if user requested course exist
-        if link_data is not None:
-            return link_data, HTTPStatus.OK
-        else:
-            abort(HTTPStatus.NOT_FOUND, message='There are currently no registered links')
