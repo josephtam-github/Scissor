@@ -49,6 +49,8 @@ def create_app(config=config_dict['dev']):
     api.register_blueprint(redirect_link)
     from .true_links.views import true_link
     api.register_blueprint(true_link)
+    from .custom_links.views import custom_link
+    api.register_blueprint(custom_link)
 
     @app.shell_context_processor
     def make_shell_context():
