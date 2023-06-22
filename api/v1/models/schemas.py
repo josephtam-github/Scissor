@@ -41,7 +41,7 @@ class LinkSchema(ma.SQLAlchemySchema):
 
 
 LinkArgSchema = LinkSchema(partial=('custom_link', 'short_link'))
-CustomArgSchema = LinkSchema(partial=('true_link', 'short_link'))
+CustomArgSchema = LinkSchema(partial='short_link')
 
 
 class ViewCountSchema(ma.SQLAlchemySchema):
