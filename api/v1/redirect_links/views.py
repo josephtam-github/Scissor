@@ -1,3 +1,4 @@
+
 import flask
 from sqlalchemy import func, or_
 from flask import redirect, request, Response
@@ -23,26 +24,29 @@ redirect_link = Blueprint(
 @redirect_link.route('/<string:short_link_code>')
 class Redirect(MethodView):
 
-    @redirect_link.response(HTTPStatus.OK, description='Redirects to the true link of shortened URL')
-    def get(self, short_link_code):
-        """Redirects to true link of shortened URL
+    @redirect_link.response(HTTPStatus.OK, description='Redirects to the true link of shortened or custom URL')
+    def get(self, path):
+        """Redirects to true link of shortened or custom URL
 
 
-        Turns short-link code to link ID, looks up the true-link with the ID, then redirects user to  true link
+        Turns short-link or custom link to link ID, looks up true-link with the ID, then redirects user to  true link
         """
-
-        link_id = url2id(short_link_code)
-
-        if not link_id:
-            return abort(HTTPStatus.NOT_ACCEPTABLE, message='This short link is invalid')
-        elif Link is not None:
-            result_link = Link.query.filter_by(link_id=link_id).first()
-            if result_link:
-                return redirect(result_link.true_link, HTTPStatus.PERMANENT_REDIRECT, Response=None)
-            else:
-                return abort(HTTPStatus.NOT_FOUND, message='Can\'t find original link')
+        is_custom_link = Link.query.filter_by(custom_link=path).first()
+        if is_custom_link:
+            return jsonify(is_custom_link.true_link)
         else:
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
+            link_id = url2id(path)
+
+            if not link_id:
+                return abort(HTTPStatus.NOT_ACCEPTABLE, message='This short link is invalid')
+            elif Link is not None:
+                result_link = Link.query.filter_by(link_id=link_id).first()
+                if result_link:
+                    return redirect(result_link.true_link, HTTPStatus.PERMANENT_REDIRECT, Response=None)
+                else:
+                    return abort(HTTPStatus.NOT_FOUND, message='Can\'t find original link')
+            else:
+                abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
 
 
 @redirect_link.after_request
