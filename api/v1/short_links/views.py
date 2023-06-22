@@ -1,5 +1,5 @@
 from sqlalchemy import func, or_
-from flask import redirect, request
+from flask import redirect, request, Response, make_response
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from ..models.links import Link
@@ -10,7 +10,10 @@ from ..models.schemas import LinkSchema, LinkArgSchema
 from http import HTTPStatus
 from flask import jsonify
 from ..utils.urlkit import url2id, id2url
+from urllib.parse import quote
+from urllib.request import urlopen
 from datetime import datetime
+from PIL import Image
 
 short_link = Blueprint(
     'Short Link',
@@ -46,3 +49,31 @@ class Expand(MethodView):
                     return abort(HTTPStatus.NOT_FOUND, message='Can\'t find original link')
             else:
                 abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
+
+
+@short_link.route('/qr/<string:short_link_code>')
+class QRCode(MethodView):
+
+    @short_link.response(HTTPStatus.OK, content_type='image/png', description='Returns the QR code of shortened URL')
+    @jwt_required()
+    def get(self, short_link_code):
+        """Returns the QR code of shortened URL
+
+
+        Returns the QR code of shortened URL as PNG
+        """
+        link_id = url2id(short_link_code)
+
+        if not link_id:
+            return abort(HTTPStatus.NOT_ACCEPTABLE, message='This short link is invalid')
+        elif Link is not None:
+            result_link = Link.query.filter_by(link_id=link_id).first()
+            if result_link:
+                quote_path = quote(result_link.short_link)
+                url = "https://api.qrserver.com/v1/create-qr-code/?data={}".format(quote_path)
+                img = Image.open(urlopen(url=url))
+                return img
+            else:
+                return abort(HTTPStatus.NOT_FOUND, message='Can\'t find original link')
+        else:
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
