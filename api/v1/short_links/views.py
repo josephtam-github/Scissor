@@ -1,5 +1,5 @@
 from sqlalchemy import func, or_
-from flask import redirect, request, Response, make_response
+from flask import redirect, request, Response, make_response, send_file
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from ..models.links import Link
@@ -14,6 +14,7 @@ from urllib.parse import quote
 from urllib.request import urlopen
 from datetime import datetime
 from PIL import Image
+from io import BytesIO
 
 short_link = Blueprint(
     'Short Link',
@@ -71,8 +72,10 @@ class QRCode(MethodView):
             if result_link:
                 quote_path = quote(result_link.short_link)
                 url = "https://api.qrserver.com/v1/create-qr-code/?data={}".format(quote_path)
-                img = Image.open(urlopen(url=url))
-                return img
+                img = Image.open(BytesIO(urlopen(url).read()))
+                return send_file(img, mimetype='image/png')
+
+                # return '<img src="https://api.qrserver.com/v1/create-qr-code/?data={}" alt="{}" title="{}" />'.format(quote_path, result_link.true_link, 'QR Code')
             else:
                 return abort(HTTPStatus.NOT_FOUND, message='Can\'t find original link')
         else:
