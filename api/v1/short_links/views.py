@@ -56,7 +56,7 @@ class Expand(MethodView):
 class QRCode(MethodView):
 
     @short_link.response(HTTPStatus.OK, content_type='image/png', description='Returns the QR code of shortened URL')
-    @jwt_required()
+    # @jwt_required()
     def get(self, short_link_code):
         """Returns the QR code of shortened URL
 
@@ -72,7 +72,10 @@ class QRCode(MethodView):
             if result_link:
                 quote_path = quote(result_link.short_link)
                 url = "https://api.qrserver.com/v1/create-qr-code/?data={}".format(quote_path)
-                img = Image.open(BytesIO(urlopen(url).read()))
+                print(url)
+                response = urlopen(url)
+                data = response.read()
+                img = BytesIO(data)
                 return send_file(img, mimetype='image/png')
 
                 # return '<img src="https://api.qrserver.com/v1/create-qr-code/?data={}" alt="{}" title="{}" />'.format(quote_path, result_link.true_link, 'QR Code')
