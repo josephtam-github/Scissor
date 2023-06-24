@@ -56,7 +56,7 @@ class Expand(MethodView):
 class QRCode(MethodView):
 
     @short_link.response(HTTPStatus.OK, content_type='image/png', description='Returns the QR code of shortened URL')
-    # @jwt_required()
+    @jwt_required()
     def get(self, short_link_code):
         """Returns the QR code of shortened URL
 
