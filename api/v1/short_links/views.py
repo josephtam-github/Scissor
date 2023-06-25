@@ -24,7 +24,7 @@ short_link = Blueprint(
 )
 
 
-@short_link.route('/<string:short_link_code>')
+@short_link.route('/<string:path>')
 class Expand(MethodView):
 
     @short_link.response(HTTPStatus.OK, description='Returns the true link of shortened  or custom URL')
