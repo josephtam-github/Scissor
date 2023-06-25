@@ -4,6 +4,7 @@ from sqlalchemy import func, or_
 from flask import redirect, request, Response
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
+from flask_caching import Cache
 from ..models.links import Link
 from ..models.view_counts import ViewCount
 from ..models.view_logs import ViewLog
@@ -19,12 +20,15 @@ redirect_link = Blueprint(
     __name__,
     description='Endpoints for redirecting, caching and analyzing short links.'
 )
+cache = Cache(config={'CACHE_TYPE': 'simple'})
+cache.init_app(redirect_link)
 
 
 @redirect_link.route('/<string:short_link_code>')
 class Redirect(MethodView):
 
     @redirect_link.response(HTTPStatus.OK, description='Redirects to the true link of shortened or custom URL')
+    @cache.cached()
     def get(self, path):
         """Redirects to true link of shortened or custom URL
 
@@ -33,7 +37,7 @@ class Redirect(MethodView):
         """
         is_custom_link = Link.query.filter_by(custom_link=path).first()
         if is_custom_link:
-            return jsonify(is_custom_link.true_link)
+            return redirect(is_custom_link.true_link, HTTPStatus.PERMANENT_REDIRECT, Response=None)
         else:
             link_id = url2id(path)
 

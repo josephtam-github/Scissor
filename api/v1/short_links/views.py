@@ -2,6 +2,7 @@ from sqlalchemy import func, or_
 from flask import redirect, request, Response, make_response, send_file
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
+from flask_caching import Cache
 from ..models.links import Link
 from ..models.view_counts import ViewCount
 from ..models.view_logs import ViewLog
@@ -23,11 +24,15 @@ short_link = Blueprint(
     description='Endpoints for shortening links.'
 )
 
+cache = Cache(config={'CACHE_TYPE': 'simple'})
+cache.init_app(short_link)
+
 
 @short_link.route('/<string:path>')
 class Expand(MethodView):
 
     @short_link.response(HTTPStatus.OK, description='Returns the true link of shortened  or custom URL')
+    @cache.cached(timeout=50)
     def get(self, path):
         """Returns true link of shortened or custom URL
 
@@ -57,6 +62,7 @@ class QRCode(MethodView):
 
     @short_link.response(HTTPStatus.OK, content_type='image/png', description='Returns the QR code of shortened URL')
     @jwt_required()
+    @cache.cached()
     def get(self, short_link_code):
         """Returns the QR code of shortened URL
 
@@ -78,7 +84,8 @@ class QRCode(MethodView):
                 img = BytesIO(data)
                 return send_file(img, mimetype='image/png')
 
-                # return '<img src="https://api.qrserver.com/v1/create-qr-code/?data={}" alt="{}" title="{}" />'.format(quote_path, result_link.true_link, 'QR Code')
+                # return '<img src="https://api.qrserver.com/v1/create-qr-code/?data={}" alt="{}" title="{}" />'.
+                # format(quote_path, result_link.true_link, 'QR Code')
             else:
                 return abort(HTTPStatus.NOT_FOUND, message='Can\'t find original link')
         else:
