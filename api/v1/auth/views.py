@@ -110,3 +110,22 @@ class Refresh(MethodView):
         claims = get_jwt()
         access_token = create_access_token(identity=user_id, additional_claims=claims)
         return jsonify({'access_token': access_token}), HTTPStatus.OK
+
+
+@auth.route('/user')
+class Register(MethodView):
+    @auth.response(HTTPStatus.OK, UserSchema, description='Returns an object containing '
+                   'the user\'s detail')
+    @jwt_required()
+    def get(self):
+        """Returns user details
+
+        Returns the user info from access token
+        """
+        # Get details from user id
+        user_id = get_jwt_identity()
+        user_exist = User.query.filter_by(user_id=user_id).first()
+        if not user_exist:
+            abort(HTTPStatus.NOT_FOUND, message='This user does not exist')
+        else:
+            return user_exist, HTTPStatus.OK
