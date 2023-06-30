@@ -36,10 +36,10 @@ class Register(MethodView):
             abort(HTTPStatus.NOT_ACCEPTABLE, message='This email or username already exists')
         else:
             new_user = User(
-                username=new_data['username'],
-                firstname=new_data['firstname'],
-                lastname=new_data['lastname'],
-                email=new_data['email'],
+                username=lower(new_data['username']),
+                firstname=lower(new_data['firstname']),
+                lastname=lower(new_data['lastname']),
+                email=lower(new_data['email']),
                 password_hash=generate_password_hash(new_data['password']),
             )
             new_user.save()
@@ -58,11 +58,11 @@ class Login(MethodView):
         """
 
         if 'email' in login_data.keys():
-            email = login_data['email']
+            email = lower(login_data['email'])
             user = User.query.filter_by(email=email).first()
 
         elif 'username' in login_data.keys():
-            username = login_data['username']
+            username = lower(login_data['username'])
             user = User.query.filter_by(username=username).first()
         else:
             abort(HTTPStatus.BAD_REQUEST, message='You must input either your username or your email '
