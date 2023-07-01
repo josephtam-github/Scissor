@@ -39,9 +39,9 @@ class Register(MethodView):
                 username=new_data['username'].lower(),
                 firstname=new_data['firstname'].lower(),
                 lastname=new_data['lastname'].lower(),
-                email=new_data['email'].lower),
+                email=new_data['email'].lower(),
                 password_hash=generate_password_hash(new_data['password']),
-            )
+                )
             new_user.save()
 
         return new_user, HTTPStatus.CREATED
