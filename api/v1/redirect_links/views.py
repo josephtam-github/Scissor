@@ -24,7 +24,7 @@ cache = Cache(config={'CACHE_TYPE': 'simple'})
 cache.init_app(redirect_link)
 
 
-@redirect_link.route('/<string:short_link_code>')
+@redirect_link.route('/<string:path>')
 class Redirect(MethodView):
 
     @redirect_link.response(HTTPStatus.OK, description='Redirects to the true link of shortened or custom URL')

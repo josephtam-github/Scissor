@@ -36,12 +36,12 @@ class Register(MethodView):
             abort(HTTPStatus.NOT_ACCEPTABLE, message='This email or username already exists')
         else:
             new_user = User(
-                username=new_data['username'],
-                firstname=new_data['firstname'],
-                lastname=new_data['lastname'],
-                email=new_data['email'],
+                username=new_data['username'].lower(),
+                firstname=new_data['firstname'].lower(),
+                lastname=new_data['lastname'].lower(),
+                email=new_data['email'].lower(),
                 password_hash=generate_password_hash(new_data['password']),
-            )
+                )
             new_user.save()
 
         return new_user, HTTPStatus.CREATED
@@ -58,12 +58,11 @@ class Login(MethodView):
         """
 
         if 'email' in login_data.keys():
-            email = login_data['email']
+            email = login_data['email'].lower()
             user = User.query.filter_by(email=email).first()
-
         elif 'username' in login_data.keys():
-            username = login_data['username']
-            user = User.query.filter_by(username=username).first()
+            username = login_data['username'].lower()
+            user = User.query.filter_by(email=email).first()
         else:
             abort(HTTPStatus.BAD_REQUEST, message='You must input either your username or your email '
                                                   'along with your password')
@@ -110,3 +109,22 @@ class Refresh(MethodView):
         claims = get_jwt()
         access_token = create_access_token(identity=user_id, additional_claims=claims)
         return jsonify({'access_token': access_token}), HTTPStatus.OK
+
+
+@auth.route('/user')
+class Register(MethodView):
+    @auth.response(HTTPStatus.OK, UserSchema, description='Returns an object containing '
+                   'the user\'s detail')
+    @jwt_required()
+    def get(self):
+        """Returns user details
+
+        Returns the user info from access token
+        """
+        # Get details from user id
+        user_id = get_jwt_identity()
+        user_exist = User.query.filter_by(user_id=user_id).first()
+        if not user_exist:
+            abort(HTTPStatus.NOT_FOUND, message='This user does not exist')
+        else:
+            return user_exist, HTTPStatus.OK
