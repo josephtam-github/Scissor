@@ -1,16 +1,14 @@
-from sqlalchemy import func, or_
-from flask import redirect, request
-from flask_smorest import Blueprint, abort
-from flask.views import MethodView
-from ..models.links import Link
-from ..models.view_counts import ViewCount
-from ..models.view_logs import ViewLog
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from ..models.schemas import CustomArgSchema, LinkSchema, LinkArgSchema
 from http import HTTPStatus
-from flask import jsonify
-from ..utils.urlkit import url2id, id2url, validate_url
-from datetime import datetime
+
+from flask.views import MethodView
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_smorest import Blueprint, abort
+from sqlalchemy import or_
+
+from ..models.links import Link
+from ..models.schemas import LinkSchema, LinkArgSchema
+from ..models.view_counts import ViewCount
+from ..utils.urlkit import id2url, validate_url
 
 custom_link = Blueprint(
     'Custom Link',
@@ -24,7 +22,8 @@ custom_link = Blueprint(
 @custom_link.route('/')
 class Custom(MethodView):
     @custom_link.arguments(LinkArgSchema)
-    @custom_link.response(HTTPStatus.CREATED, LinkSchema, description='Returns an object containing custom link detail')
+    @custom_link.response(HTTPStatus.CREATED, LinkSchema, description='[JWT Required] '
+                                                                      'Returns an object containing custom link detail')
     @jwt_required()
     def post(self, link_data):
         """Creates customized link out of original link

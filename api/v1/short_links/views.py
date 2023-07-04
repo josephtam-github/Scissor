@@ -1,21 +1,17 @@
-from sqlalchemy import func, or_
-from flask import redirect, request, Response, make_response, send_file
-from flask_smorest import Blueprint, abort
-from flask.views import MethodView
-from flask_caching import Cache
-from ..models.links import Link
-from ..models.view_counts import ViewCount
-from ..models.view_logs import ViewLog
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from ..models.schemas import LinkSchema, LinkArgSchema
 from http import HTTPStatus
-from flask import jsonify
-from ..utils.urlkit import url2id, id2url
+from io import BytesIO
 from urllib.parse import quote
 from urllib.request import urlopen
-from datetime import datetime
-from PIL import Image
-from io import BytesIO
+
+from flask import jsonify
+from flask import send_file
+from flask.views import MethodView
+from flask_jwt_extended import jwt_required
+from flask_smorest import Blueprint, abort
+
+from ..config.cache import cache
+from ..models.links import Link
+from ..utils.urlkit import url2id
 
 short_link = Blueprint(
     'Short Link',
@@ -23,9 +19,6 @@ short_link = Blueprint(
     url_prefix='/short',
     description='Endpoints for shortening links.'
 )
-
-cache = Cache(config={'CACHE_TYPE': 'simple'})
-cache.init_app(short_link)
 
 
 @short_link.route('/<string:path>')
@@ -60,7 +53,8 @@ class Expand(MethodView):
 @short_link.route('/qr/<string:short_link_code>')
 class QRCode(MethodView):
 
-    @short_link.response(HTTPStatus.OK, content_type='image/png', description='Returns the QR code of shortened URL')
+    @short_link.response(HTTPStatus.OK, content_type='image/png', description='[JWT Required] Returns the'
+                                                                              ' QR code of shortened URL in png format')
     @jwt_required()
     @cache.cached()
     def get(self, short_link_code):

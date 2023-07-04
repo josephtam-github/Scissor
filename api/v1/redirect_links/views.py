@@ -1,27 +1,21 @@
+from datetime import datetime
+from http import HTTPStatus
 
-import flask
-from sqlalchemy import func, or_
-from flask import redirect, request, Response
-from flask_smorest import Blueprint, abort
+from flask import redirect, request
 from flask.views import MethodView
-from flask_caching import Cache
+from flask_smorest import Blueprint, abort
+
+from ..config.cache import cache
 from ..models.links import Link
 from ..models.view_counts import ViewCount
 from ..models.view_logs import ViewLog
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from ..models.schemas import LinkSchema, LinkArgSchema
-from http import HTTPStatus
-from flask import jsonify
-from ..utils.urlkit import url2id, id2url
-from datetime import datetime
+from ..utils.urlkit import url2id
 
 redirect_link = Blueprint(
     'Redirect Link',
     __name__,
     description='Endpoints for redirecting, caching and analyzing short links.'
 )
-cache = Cache(config={'CACHE_TYPE': 'simple'})
-cache.init_app(redirect_link)
 
 
 @redirect_link.route('/<string:path>')
