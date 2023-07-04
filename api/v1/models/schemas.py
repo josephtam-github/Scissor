@@ -1,4 +1,4 @@
-from marshmallow import RAISE
+from marshmallow import RAISE, fields
 from marshmallow.validate import Length, Email
 from marshmallow_sqlalchemy import field_for
 from ..models.users import User
@@ -64,3 +64,12 @@ class ViewLogSchema(ma.SQLAlchemySchema):
     short_link = field_for(ViewLog, "short_link", dump_only=True)
     ip_address = field_for(ViewLog, "ip_address", dump_only=True)
     viewed_on = field_for(ViewLog, "viewed_on", dump_only=True)
+
+
+class LinkDetail(ma.SQLAlchemySchema):
+    class Meta:
+        model = ViewLog
+        ordered = True
+
+    referer = field_for(ViewLog, "referer", dump_only=True)
+    clicks = fields.Integer()
