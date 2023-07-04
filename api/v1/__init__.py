@@ -26,7 +26,7 @@ def create_app(config=config_dict['dev']):
         "description": 'A flask-smorest API that allows users to shorten url links'}
     app.config['OPENAPI_URL_PREFIX'] = '/'
     app.config['OPENAPI_JSON_PATH'] = 'api-spec.json'
-    app.config['OPENAPI_SWAGGER_UI_PATH'] = '/'
+    app.config['OPENAPI_SWAGGER_UI_PATH'] = '/documentation'
     app.config['OPENAPI_SWAGGER_UI_URL'] = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.25.x/'
 
     api = Api(app)

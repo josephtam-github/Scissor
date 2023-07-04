@@ -42,7 +42,7 @@ Scissor allows users to shorten URLs by pasting a long URL into the Scissor plat
 
 ## Documentation
 
-[Documentation](https://scissor-ly.stoplight.io)
+[Documentation](https://scissor-ly.onrender.com/documentation)
 
 
 ## Deployment
