@@ -1,20 +1,15 @@
-from flask_smorest import Blueprint, abort
-from flask.views import MethodView
-from ..models.links import Link
-from ..models.view_counts import ViewCount
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from ..models.schemas import LinkSchema, LinkArgSchema
-from http import HTTPStatus
-from ..utils.urlkit import id2url, validate_url
 from http import HTTPStatus
 
 from flask.views import MethodView
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_smorest import Blueprint, abort
+from sqlalchemy import func
 
 from ..models.links import Link
+from ..models.schemas import LinkDetail
 from ..models.schemas import LinkSchema, LinkArgSchema
 from ..models.view_counts import ViewCount
+from ..models.view_logs import ViewLog
 from ..utils.urlkit import id2url, validate_url
 
 true_link = Blueprint(
@@ -88,3 +83,33 @@ class ListAllLinks(MethodView):
             return link_data, HTTPStatus.OK
         else:
             abort(HTTPStatus.NOT_FOUND, message='There are currently no registered links')
+
+
+@true_link.route('/detail/<string:link_id>')
+class GetLinkDetail(MethodView):
+    @true_link.response(HTTPStatus.OK, LinkDetail(many=True), description='[JWT Required] '
+                                                                          'Returns a list of tuples where each tuple'
+                                                                          ' contains the referer and its corresponding'
+                                                                          ' link count')
+    @jwt_required()
+    def get(self, link_id):
+        """Get a list referers and corresponding link count for a link [JWT Required]
+
+        Returns a list of tuples where each tuple contains the referer and its corresponding link count
+        """
+        # check if link exists
+        link_exist = ViewLog.query.filter_by(view_log_id=link_id).first()
+        # Query the database to get the link count by referer
+        if link_exist:
+            link_detail = ViewLog.query.with_entities(ViewLog.referer, func.count(ViewLog.referer).label('clicks'))\
+                .filter_by(short_link=link_exist.short_link)\
+                .group_by(ViewLog.referer)\
+                .all()
+
+            # check if user requested course exist
+            if link_detail is not None:
+                return link_detail, HTTPStatus.OK
+            else:
+                abort(HTTPStatus.NOT_FOUND, message='There are currently no details for this links')
+        else:
+            abort(HTTPStatus.NOT_FOUND, message='The link id provided does not exist')
