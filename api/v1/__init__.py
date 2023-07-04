@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_smorest import Api
 from .config.config import config_dict
+from .config.cache import cache
 from .utils import db, ma
 from .models.blocklist import TokenBlocklist
 from werkzeug.exceptions import HTTPException
@@ -31,6 +32,7 @@ def create_app(config=config_dict['dev']):
     api = Api(app)
     CORS(app)
     jwt = JWTManager(app)
+    cache.init_app(app)
 
     # Callback function to check if a JWT exists in the database blocklist
     @jwt.token_in_blocklist_loader
