@@ -62,7 +62,7 @@ class Login(MethodView):
             user = User.query.filter_by(email=email).first()
         elif 'username' in login_data.keys():
             username = login_data['username'].lower()
-            user = User.query.filter_by(email=email).first()
+            user = User.query.filter_by(email=username).first()
         else:
             abort(HTTPStatus.BAD_REQUEST, message='You must input either your username or your email '
                                                   'along with your password')
