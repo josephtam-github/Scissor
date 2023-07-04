@@ -88,8 +88,8 @@ Scissor allows users to shorten URLs by pasting a long URL into the Scissor plat
 
 ## Screenshots
 
-[![Signup Screenshot][signup-screenshot]](https://github.com/josephtam-github/scissor/blob/main/img/register.jpg)
+[![Signup Screenshot][signup-screenshot]](https://github.com/josephtam-github/Scissor/blob/master/img/register.jpg)
 
 ___
 
-[![Shortening Screenshot][Shortening-screenshot]](https://github.com/josephtam-github/scissor/blob/main/img/cut_link.jpg)
+[![Shortening Screenshot][Shortening-screenshot]](https://github.com/josephtam-github/Scissor/blob/master/img/cut_link.jpg)
