@@ -58,7 +58,7 @@ class QRCode(MethodView):
     @jwt_required()
     @cache.cached()
     def get(self, short_link_code):
-        """Returns the QR code of shortened URL
+        """Returns the QR code of shortened URL  [JWT Required]
 
 
         Returns the QR code of shortened URL as PNG

@@ -33,7 +33,7 @@ class Shorten(MethodView):
                                                                     ' containing short link detail')
     @jwt_required()
     def post(self, link_data):
-        """Shortens original link
+        """Shortens original link [JWT Required]
 
         Returns the details of the short link from database
         """
@@ -77,7 +77,7 @@ class ListAllLinks(MethodView):
                                                                           'Returns an object containing all link data')
     @jwt_required()
     def get(self):
-        """Get a list of all user links
+        """Get a list of all user links [JWT Required]
 
         Returns all links created by user
         """

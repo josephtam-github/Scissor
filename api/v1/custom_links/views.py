@@ -26,7 +26,7 @@ class Custom(MethodView):
                                                                       'Returns an object containing custom link detail')
     @jwt_required()
     def post(self, link_data):
-        """Creates customized link out of original link
+        """Creates customized link out of original link [JWT Required]
 
         Returns the details of the custom link from database
         """
