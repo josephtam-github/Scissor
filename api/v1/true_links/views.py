@@ -76,7 +76,8 @@ class ListAllLinks(MethodView):
 
         Returns all links created by user
         """
-        link_data = Link.query.all()
+        user_id = get_jwt_identity()
+        link_data = Link.query.filter_by(user_id=user_id).all()
 
         # check if user requested course exist
         if link_data is not None:
