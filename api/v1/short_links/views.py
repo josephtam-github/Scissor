@@ -55,7 +55,6 @@ class QRCode(MethodView):
 
     @short_link.response(HTTPStatus.OK, content_type='image/png', description='[JWT Required] Returns the'
                                                                               ' QR code of shortened URL in png format')
-    @jwt_required()
     @cache.cached()
     def get(self, short_link_code):
         """Returns the QR code of shortened URL  [JWT Required]
@@ -84,3 +83,4 @@ class QRCode(MethodView):
                 return abort(HTTPStatus.NOT_FOUND, message='Can\'t find original link')
         else:
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='Internal server error please try again later')
+
