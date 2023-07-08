@@ -8,6 +8,7 @@ from .config.cache import cache
 from .utils import db, ma
 from .models.blocklist import TokenBlocklist
 from werkzeug.exceptions import HTTPException
+from datetime import timedelta
 
 
 def create_app(config=config_dict['dev']):
@@ -32,6 +33,7 @@ def create_app(config=config_dict['dev']):
     api = Api(app)
     CORS(app)
     jwt = JWTManager(app)
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
     cache.init_app(app)
 
     # Callback function to check if a JWT exists in the database blocklist
